@@ -1,0 +1,28 @@
+{
+  "LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:864572275930:loadbalancer/app/checkout-service-alb/56e311f8abd791f0",
+  "Protocol": "HTTPS",
+  "Port": 443,
+  "Certificates": [
+    {
+      "CertificateArn": "arn:aws:acm:us-east-1:864572275930:certificate/6600459c-8e37-4b98-b1bb-d17cbb3c6fb6"
+    }
+  ],
+  "DefaultActions": [
+    {
+      "Type": "forward",
+      "ForwardConfig": {
+        "TargetGroups": [
+          {
+            "TargetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:864572275930:targetgroup/checkout-service-blue-tg/b5dbc50b78d2d608",
+            "Weight": 50
+          },
+          {
+            "TargetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:864572275930:targetgroup/checkout-service-green-tg/bf3b9508b4f8d46a",
+            "Weight": 50
+          }
+        ]
+      }
+    }
+  ],
+  "SslPolicy": "ELBSecurityPolicy-TLS-1-2-2017-01"
+}

@@ -1,0 +1,11 @@
+[
+    {
+        "Type": "forward",
+        "ForwardConfig": {
+            "TargetGroups": [
+                {"TargetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:864572275930:targetgroup/checkout-service-green-tg/bf3b9508b4f8d46a", "Weight": 100},
+                {"TargetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:864572275930:targetgroup/checkout-service-blue-tg/b5dbc50b78d2d608", "Weight": 0}
+            ]
+        }
+    }
+]

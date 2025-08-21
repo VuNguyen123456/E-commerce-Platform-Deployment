@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt - Vu's Coffee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff8f0;
+            padding: 40px;
+            color: #4b2e2e;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 18px;
+            color: #6f4e37;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>☕ Thank You for Your Order!</h1>
+    <p><strong>Name:</strong> {{ customer_name }}</p>
+    <p><strong>Email:</strong> {{ customer_email }}</p>
+
+    <h2>Receipt:</h2>
+    {% for item in items %}
+        <div>{{ item.name }} (x{{ item.quantity }})</div>
+        <div>${{ '%.2f' % (item.subtotal / 100) }}</div>
+    {% endfor %}
+
+
+    <div class="total">Total: ${{ '%.2f' % (total|int / 100) }}</div>
+
+    <a class="back-link" href="/">← Back to Homepage</a>
+</div>
+</body>
+</html>

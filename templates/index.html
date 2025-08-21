@@ -1,0 +1,309 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>☕ Vu's Coffee Shop</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fff8f0;
+            color: #4b2e2e;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .product {
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .product img {
+            width: 50%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .product h3 {
+            margin: 0;
+        }
+        .product p {
+            margin: 8px 0 12px;
+        }
+        .product form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .product input[type="number"] {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .product button {
+            background-color: #6f4e37;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .product button:hover {
+            background-color: #593621;
+        }
+
+        .cart-section {
+            background-color: #fffefc;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.05);
+            margin-top: 40px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cart-item span {
+            flex: 1;
+        }
+
+        .cart-item form {
+            margin-left: 10px;
+        }
+
+        .checkout-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>☕Coffee Shop</h1>
+
+    {% for key, price in items.items() %}
+        {% set item = coffee_items[key] %}
+        <div class="product">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}">
+            <h3>{{ item.name }}</h3>
+            <div style="text-align: left; margin-top: 4px;">
+                <button onclick="showDetails('{{ key }}')"
+                        style="padding: 2px 6px; font-size: 11px; background: none; color: inherit; border: none; cursor: pointer;">
+                    ℹ View
+                </button>
+            </div>
+
+            <p><strong>${{ '%.2f' % (price / 100) }}</strong></p>
+            <div>
+                <input type="number" id="qty-{{ key }}" value="1" min="1" required>
+                <button type="button" onclick="addToCart('{{ key }}')">Add to Cart</button>
+            </div>
+        </div>
+    {% endfor %}
+
+
+
+    <div id="cart-section">
+        {% if cart %}
+        <div class="cart-section">
+            <h2>Your Cart 🛒</h2>
+            {% set total = 0 %}
+            {% for slug, qty in cart.items() %}
+                {% if slug in items %}
+                    {% set price = items[slug] %}
+                    {% set item = coffee_items[slug] %}
+                    {% set subtotal = price * qty %}
+                    {% set total = total + subtotal %}
+                    <div class="cart-item">
+                        <span>{{ item.name }} (x{{ qty }})</span>
+                        <span>${{ '%.2f' % (subtotal / 100) }}</span>
+                        <button type="button" onclick="removeFromCart('{{ slug }}')">❌ Remove</button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <p><strong>Total: ${{ '%.2f' % (total / 100) }}</strong></p>
+            <a href="/checkout" class="checkout-link">Proceed to Checkout →</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal HTML -->
+    <div id="detail-modal" style="
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    ">
+        <div style="
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            text-align: center;
+        ">
+            <span id="modal-close" style="
+                position: absolute;
+                top: 10px; right: 15px;
+                cursor: pointer;
+                font-size: 20px;
+            ">&times;</span>
+            <img id="modal-image" src="" alt="Product Image" style="width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 10px;">
+            <h2 id="modal-name"></h2>
+            <p id="modal-price"></p>
+            <p id="modal-description"></p>
+            <hr>
+            <p><strong>Brand:</strong> <span id="modal-brand"></span></p>
+            <p><strong>Origin:</strong> <span id="modal-origin"></span></p>
+            <p><strong>Material:</strong> <span id="modal-material"></span></p>
+            <p><strong>Category:</strong> <span id="modal-category"></span></p>
+            <p><strong>Rating:</strong> <span id="modal-rating"></span></p>
+            <p><strong>In Stock:</strong> <span id="modal-instock"></span></p>
+            <p><strong>Released:</strong> <span id="modal-release"></span></p>
+            <p><strong>Warranty:</strong> <span id="modal-warranty"></span> months</p>
+            <p><strong>Weight:</strong> <span id="modal-weight"></span>g</p>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script>
+    // Cart section logic
+    const ITEMS = JSON.parse('{{ coffee_items|tojson|safe }}');
+
+    async function addToCart(item) {
+        const inputId = `qty-${item}`;
+        const quantityInput = document.getElementById(inputId);
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+        const res = await fetch('/api/add-to-cart', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ item, quantity })
+        });
+
+        const data = await res.json();
+        updateCartUI(data.cart, data.items); // ✅ pass both cart and items
+    }
+
+
+
+
+    async function removeFromCart(item) {
+        const res = await fetch('/api/remove-from-cart', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ item })
+        });
+
+        const data = await res.json();
+        updateCartUI(data.cart, data.items); // ✅ same here
+    }
+
+
+    function updateCartUI(cart, items) {
+        const cartSection = document.getElementById('cart-section');
+
+        if (!cart || Object.keys(cart).length === 0) {
+            cartSection.innerHTML = ''; // empty cart
+            return;
+        }
+
+        let html = `<div class="cart-section"><h2>Your Cart 🛒</h2>`;
+        let total = 0;
+
+        for (const slug in cart) {
+            const qty = cart[slug];
+            const item = items[slug];
+            if (!item) continue;
+
+            const subtotal = item.price * qty;
+            total += subtotal;
+
+            html += `
+                <div class="cart-item">
+                    <span>${item.name} (x${qty})</span>
+                    <span>$${(subtotal / 100).toFixed(2)}</span>
+                    <button type="button" onclick="removeFromCart('${slug}')">❌ Remove</button>
+                </div>
+            `;
+        }
+
+        html += `<p><strong>Total: $${(total / 100).toFixed(2)}</strong></p>
+                <a href="/checkout" class="checkout-link">Proceed to Checkout →</a>
+                </div>`;
+
+        cartSection.innerHTML = html;
+    }
+
+
+    //For the pop up detail of each item
+    const ITEM_DETAILS = JSON.parse('{{ coffee_items | tojson | safe }}');
+
+    function showDetails(key) {
+        const item = ITEM_DETAILS[key];
+        if (!item) return;
+
+        document.getElementById('modal-name').innerText = item.name;
+        document.getElementById('modal-price').innerText = `$${(item.price / 100).toFixed(2)}`;
+        document.getElementById('modal-description').innerText = item.description;
+        document.getElementById('modal-image').src = item.image_url;
+
+        document.getElementById('modal-brand').innerText = item.brand || 'N/A';
+        document.getElementById('modal-origin').innerText = item.origin_country || 'Unknown';
+        document.getElementById('modal-material').innerText = item.material || 'N/A';
+        document.getElementById('modal-category').innerText = item.category || 'N/A';
+
+        const rating = parseFloat(item.rating);
+        document.getElementById('modal-rating').innerText = isNaN(rating) ? 'N/A' : rating.toFixed(1);
+
+        document.getElementById('modal-instock').innerText = item.in_stock ? 'Yes' : 'No';
+        document.getElementById('modal-release').innerText = item.release_date || 'N/A';
+        document.getElementById('modal-warranty').innerText = item.warranty_months || '0';
+        document.getElementById('modal-weight').innerText = item.weight_grams || 'N/A';
+
+        document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+
+
+    // Close modal on × click
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('modal-close').onclick = () => {
+        document.getElementById('detail-modal').style.display = 'none';
+        };
+        // Optional: click outside modal to close
+        document.getElementById('detail-modal').onclick = (e) => {
+        if (e.target.id === 'detail-modal') {
+            document.getElementById('detail-modal').style.display = 'none';
+        }
+        };
+    });
+</script>
+
+</html>

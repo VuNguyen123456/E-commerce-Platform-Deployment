@@ -1,0 +1,80 @@
+config:
+  target: 'https://d1he26tr9fo7p6.cloudfront.net'
+  
+  # Optimized for precise single-container testing
+  engines:
+    http:
+      pool: 10                    # Small connection pool
+      maxSockets: 20             # Conservative connections
+      timeout: 3000              # 3 second timeout
+  
+  # Progressive load test to find exact breaking point
+  phases:
+    # Phase 1: Baseline (30 seconds)
+    - duration: 30
+      arrivalRate: 10
+      name: "Baseline - 10 RPS"
+    
+    # Phase 2: Light load (60 seconds)
+    - duration: 60
+      arrivalRate: 50
+      name: "Light load - 50 RPS"
+    
+    # Phase 3: Medium load (60 seconds)
+    - duration: 60
+      arrivalRate: 100
+      name: "Medium load - 100 RPS"
+    
+    # Phase 4: High load (60 seconds)
+    - duration: 60
+      arrivalRate: 200
+      name: "High load - 200 RPS"
+    
+    # Phase 5: Stress test (60 seconds)
+    - duration: 60
+      arrivalRate: 300
+      name: "Stress test - 300 RPS"
+    
+    # Phase 6: Breaking point (60 seconds)
+    - duration: 60
+      arrivalRate: 500
+      name: "Breaking point - 500 RPS"
+    
+    # Phase 7: Recovery (30 seconds)
+    - duration: 30
+      arrivalRate: 10
+      name: "Recovery - 10 RPS"
+
+  # Precise performance measurement
+  ensure:
+    maxErrorRate: 50           # Allow high error rate to find limits
+    maxResponseTime: 30000     # 30 second max (find real timeout point)
+
+scenarios:
+  # Scenario 1: Health checks (90% - lightweight)
+  - name: "Health Check Performance"
+    weight: 90
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: [200, 503, 504, 429]  # Accept all responses
+
+  # Scenario 2: Real workload (10% - heavy)
+  - name: "Checkout Performance"
+    weight: 10
+    flow:
+      - post:
+          url: "/checkout"
+          json:
+            items: 
+              - product_slug: "espresso-machine"
+                quantity: 1
+            payment_method: "stripe"
+            stripe_token: "tok_visa"
+          expect:
+            - statusCode: [200, 201, 429, 503, 504, 500]  # Accept all responses
+          capture:
+            - json: "$.transaction_id"
+              as: "txn_id"
+              ifNotExists: "none"

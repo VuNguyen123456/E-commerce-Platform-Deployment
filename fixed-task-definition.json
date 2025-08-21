@@ -1,0 +1,87 @@
+{
+  "family": "checkout-service-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::864572275930:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::864572275930:role/ecsTaskRole",
+  
+  "containerDefinitions": [
+    {
+      "name": "checkout-service",
+      "image": "864572275930.dkr.ecr.us-east-1.amazonaws.com/checkout-service:ssl-fix",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {"name": "FLASK_ENV", "value": "production"},
+        {"name": "PORT", "value": "8080"},
+        {"name": "USE_SQLITE", "value": "false"},
+        {"name": "DB_SSL_MODE", "value": "require"},
+        {"name": "PGSSLMODE", "value": "require"},
+        {"name": "SSL_CERT_FILE", "value": "/opt/rds-combined-ca-bundle.pem"},
+        {"name": "PGSSLROOTCERT", "value": "/opt/rds-combined-ca-bundle.pem"},
+        {"name": "IS_PRODUCTION", "value": "true"},
+        {"name": "APP_VERSION", "value": "2.1.0"},
+        {"name": "DEPLOYMENT_COLOR", "value": "green"}
+      ],
+      "secrets": [
+        {
+          "name": "SECRET_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:flask-secret-key-bD3aWC"
+        },
+        {
+          "name": "STRIPE_PUBLISHABLE_KEY", 
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:stripe-publishable-key-TJqDfm"
+        },
+        {
+          "name": "STRIPE_SECRET_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:stripe-secret-key-nwUWEB"
+        },
+        {
+          "name": "RDS_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:checkout-db-password-7ju51m"
+        },
+        {
+          "name": "RDS_USERNAME",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:checkout-db-credentials-DdDguH:username::"
+        },
+        {
+          "name": "RDS_HOSTNAME",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:checkout-db-credentials-DdDguH:host::"
+        },
+        {
+          "name": "RDS_DB_NAME",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:checkout-db-credentials-DdDguH:dbname::"
+        },
+        {
+          "name": "RDS_PORT",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:864572275930:secret:checkout-db-credentials-DdDguH:port::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/checkout-service",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/health"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}
