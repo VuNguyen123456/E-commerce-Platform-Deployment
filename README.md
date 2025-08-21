@@ -242,3 +242,11 @@ This project is part of the 22nd Century Intern Exercise program.
 
 **Live Service:** http://checkout-service-alb-1473258751.us-east-1.elb.amazonaws.com/  
 **Status:** ✅ Operational (99.99% uptime target achieved)
+
+Detail slides: https://docs.google.com/presentation/d/1kL8ORacxiktzLq5cRny_yzy6d03_3iTwi25WPYJHkQs/edit?usp=sharing
+
+<img width="2531" height="1259" alt="image" src="https://github.com/user-attachments/assets/fda7b65b-2f4f-4da9-b5d8-6788c7a31eb1" />
+<img width="1399" height="796" alt="image" src="https://github.com/user-attachments/assets/39464f3a-ffc4-4a8e-9b8b-0099b2a2ddd5" />
+<img width="1057" height="1017" alt="image" src="https://github.com/user-attachments/assets/2b78426f-06b9-4952-b306-617e963de2c5" />
+<img width="1019" height="384" alt="image" src="https://github.com/user-attachments/assets/507472ff-1c29-438f-84c1-2935a88605e5" />
+
